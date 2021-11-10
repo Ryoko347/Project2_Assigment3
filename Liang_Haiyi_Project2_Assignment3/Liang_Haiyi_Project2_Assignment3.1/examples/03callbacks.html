@@ -1,0 +1,189 @@
+<html>
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/p5.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/addons/p5.dom.js"></script>
+	<script src="../lib/p5.speech.js"></script>
+	<script>
+
+	var myVoice = new p5.Speech('Google US English Male', speechLoaded); // new P5.Speech object
+        
+
+
+	//myVoice.onLoad = speechLoaded; // could do it this way
+	myVoice.onStart = speechStarted;
+	myVoice.onPause = speechPaused; // not working
+	myVoice.onResume = speechResumed; // not working
+	myVoice.onEnd = speechEnded;
+        
+  
+
+	var lyric = [];
+        let index=0;
+
+
+        let talked = false;
+        
+	var speakbutton01; // UI
+        var speakbutton02;
+
+        var alpha1 = 255;
+        var alpha2 = 0;
+        
+        var nick;
+        var judy;
+        
+        function preload()
+        {
+            
+            nick = loadImage("asset/Nick.png");
+            judy = loadImage("asset/Judy.png");
+        }
+        
+	function setup()
+	{
+		createCanvas(800, 600);
+        
+        
+        lyric[0] = "So are all rabbits bad drivers or is it just you?";
+        lyric[1] = "Oops. Sorry."
+        lyric[2] = "Sly bunny."
+        lyric[3] = "Dumb fox."
+        lyric[4] = "You know you love me."
+        lyric[5] = "Do I know that? Yes. Yes, I do."
+        
+        
+        
+        
+        
+		// button:
+		speakbutton01 = createButton('Speak');
+  		speakbutton01.position(180, 500);
+  		speakbutton01.mousePressed(buttonClicked);
+        
+        speakbutton02 = createButton('Speak');
+  		speakbutton02.position(540, 500);
+        speakbutton02.mousePressed(buttonClicked);
+
+	}
+
+	function draw()
+	{
+        background(255, 255, 255);
+		// why draw when you can click?
+        if(talked == true)
+        {
+
+            speakbutton01.position(-1000,500);
+            speakbutton02.position(540, 500);
+        }
+        else
+        {
+
+            speakbutton01.position(180,500);
+            speakbutton02.position(-1000, 500);
+        }
+        
+        text("Nick", 185, 530);
+        text("Judy", 540, 530);
+        
+        image(nick, 90,70,250,400);
+        image(judy, 415,70,280,400);
+
+	}
+
+	function buttonClicked()
+	{
+        if(!talked)
+        {
+            if(speakbutton01.elt.innerHTML=='Speak')
+            {
+            myVoice.speak(lyric[index]);
+            index = index +1;
+            talked = true;
+            } 
+		  else if(speakbutton01.elt.innerHTML=='Pause') myVoice.pause(); // not working
+		  else if(speakbutton01.elt.innerHTML=='Resume') myVoice.resume(); // not working
+		  else if(speakbutton01.elt.innerHTML=='Stop') myVoice.stop();
+        }
+        else
+        {
+            if(speakbutton01.elt.innerHTML=='Speak')
+            {
+            myVoice.speak(lyric[index]);
+            index = index +1;
+            talked = false;
+            } 
+		      else if(speakbutton01.elt.innerHTML=='Pause') myVoice.pause(); // not working
+		      else if(speakbutton01.elt.innerHTML=='Resume') myVoice.resume(); // not working
+              else if(speakbutton01.elt.innerHTML=='Stop') myVoice.stop();
+        }
+        
+ 
+	}
+
+	function speechLoaded()
+	{
+  		// say cheers:
+		myVoice.speak("testing one two three!!!");
+	}
+
+	function speechStarted()
+	{
+		//background(0, 255, 0);
+        if(!talked)
+        {
+            speakbutton01.elt.innerHTML = 'Stop';
+        }
+        else
+        {
+            speakbutton02.elt.innerHTML = 'Stop';
+        }        
+	}
+
+	// not working...
+	function speechPaused()
+	{
+		//background(0, 255, 0);
+        if(!talked)
+        {
+		  speakbutton01.elt.innerHTML = 'Resume';
+        }
+        else
+        {
+		  speakbutton02.elt.innerHTML = 'Resume';
+        }  
+
+    }
+
+	// not working...
+	function speechResumed()
+	{
+		//background(0, 255, 0);
+        if(!talked)
+        {
+		speakbutton01.elt.innerHTML = 'Pause';
+        }
+        else
+        {
+        speakbutton02.elt.innerHTML = 'Pause';
+        }  
+	}
+
+	function speechEnded()
+	{
+		//background(255, 0, 0);
+        if(!talked)
+        {
+		speakbutton01.elt.innerHTML = 'Speak';
+        }
+        else
+        {
+        speakbutton02.elt.innerHTML = 'Speak';
+        }  
+	}
+
+</script>
+</head>
+<body>
+</body>
+</html>

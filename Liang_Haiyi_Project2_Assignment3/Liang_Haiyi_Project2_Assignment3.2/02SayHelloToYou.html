@@ -1,0 +1,65 @@
+<html>
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/p5.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/addons/p5.dom.js"></script>
+	<script src="../lib/p5.speech.js"></script>
+	<script>
+
+	var myVoice = new p5.Speech(); // new P5.Speech object
+
+	var menuLoaded = 0;
+	var label, input, checkbox, speakbutton;
+
+    var input2;
+        
+	function setup()
+	{
+		// input dialog:
+		input = createInput("");
+		input.style("width", 400);
+  		input.position(20, 65);
+
+		// button:
+		speakbutton = createButton('Commit');
+  		speakbutton.position(20, 100);
+  		speakbutton.mousePressed(doSpeak);
+
+		// labels:
+		label = createDiv("What's your name ?");
+		label.position(20, 40);
+
+  		// say hello:
+		myVoice.speak(input.value());
+
+	}
+
+	function setVolume()
+	{
+		myVoice.setVolume(vslider.value()/100.);
+	}
+	function setRate()
+	{
+		myVoice.setRate(rslider.value()/100.);
+	}
+	function setPitch()
+	{
+		myVoice.setPitch(pslider.value()/100.);
+	}
+
+	function draw()
+	{
+		// why draw when you can click?
+	}
+
+	function doSpeak()
+	{
+        input2 = "Hello!"
+		//myVoice.interrupt = checkbox.elt.checked;
+		myVoice.speak(input2 + input.value());
+	}
+
+</script>
+</head>
+<body>
+</body>
+</html>

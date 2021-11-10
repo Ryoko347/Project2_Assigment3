@@ -1,0 +1,87 @@
+<html>
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/p5.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/addons/p5.dom.js"></script>
+	<script src="../lib/p5.speech.js"></script>
+	<script>
+
+	var myRec = new p5.SpeechRec('en-US', parseResult); // new P5.SpeechRec object
+	myRec.continuous = true; // do continuous recognition
+	myRec.interimResults = true; // allow partial recognition (faster, less accurate)
+
+	var x, y;
+	var dx, dy;
+        
+    var x1,y1;
+      var point;  
+        
+        var isSecond = false;;
+	function setup()
+	{
+		// graphics stuff:
+		createCanvas(500, 400);
+		fill(0, 0, 0, 255);
+		x = width/2;
+		y = height/2;
+		dx = 0;
+		dy = 0;
+
+        point = 0;
+        x1 = 350;
+        y1 = 200;
+		// instructions:
+		//myRec.onResult = parseResult; // now in the constructor
+		myRec.start(); // start engine
+	}
+
+	function draw()
+	{
+        background(255, 255, 255);
+		textSize(20);
+		textAlign(LEFT);
+		text("Control Command: up, down, left, right, clear, stop", 20, 20);
+        text(point, 100, 100);
+        
+        x += dx;
+        y += dy;
+        
+		if(x<0) x = width;
+		if(y<0) y = height;
+		if(x>width) x = 0;
+		if(y>height) y = 0;
+        fill(0,0,0);
+        ellipse(x, y, 10, 10);
+
+        fill(255,0,0);
+        ellipse(x1,y1,20,20);
+        if(x< x1+20 && x>x1-20)
+        {
+            if(y<y1+20 && y>y1-20)
+            {
+                x1 = random(50,450);
+                y1 = random(100,350);
+                point = point +1;
+            }
+        }
+	}
+
+	function parseResult()
+	{
+		// recognition system will often append words into phrases.
+		// so hack here is to only use the last word:
+		var mostrecentword = myRec.resultString.split(' ').pop();
+		if(mostrecentword.indexOf("left")!==-1) {  dx=-1;dy=0;}
+		else if(mostrecentword.indexOf("right")!==-1) { dx=1;dy=0; }
+		else if(mostrecentword.indexOf("up")!==-1) { dx=0;dy=-1; }
+		else if(mostrecentword.indexOf("down")!==-1) { dx=0;dy=1; }
+		else if(mostrecentword.indexOf("clear")!==-1) { background(255); }
+        else if(mostrecentword.indexOf("stop")!==-1) {  dx=0;dy=0; }
+		console.log(mostrecentword);
+	}
+
+        
+</script>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<html>
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/p5.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/addons/p5.dom.js"></script>
+	<script src="../lib/p5.speech.js"></script>
+	<script>
+
+	var myRec = new p5.SpeechRec('en-US', parseResult); // new P5.SpeechRec object
+	myRec.continuous = true; // do continuous recognition
+	myRec.interimResults = true; // allow partial recognition (faster, less accurate)
+
+	var x, y, r;
+	var dx, dy;
+        var dr;
+        
+    var x1,y1; // regular Point        
+    var x2, y2; //energy 
+        
+        
+    var hx1, hy1;
+    var hx2, hy2;
+    
+    var hActive1;
+        var hActive2;
+        var moving;
+        
+    var energy;
+        var energyAlpha;
+        
+        var dhx1, dhx2,dhy1,dhy2;
+        
+        var timer;
+        
+	function setup()
+	{
+		// graphics stuff:
+		createCanvas(500, 400);
+		fill(0, 0, 0, 255);
+		x = width/2;
+		y = height/2;
+        r = 10;
+		dx = 0;
+		dy = 0;
+        
+                hx1 = random(50,450);
+                hy1 = random(50,450);
+        
+                hx2 = random(50,450);
+                hy2 = random(50,450);
+
+        timer = 5;
+        hActive1 = false;
+        hActive2 = false;
+        moving = false;
+        point = 0;
+        energy= 0;
+        x1 = 350;
+        y1 = 200;
+        x2 = -1200;
+        y2 = 200;
+        
+        dhx1 = 0;
+        dhx2 = 0;
+        dhy1 = 0;
+        dhy2 = 0;
+        
+		// instructions:
+		//myRec.onResult = parseResult; // now in the constructor
+		myRec.start(); // start engine
+	}
+
+	function draw()
+	{
+        background(255, 255, 255);
+		textSize(20);
+		textAlign(LEFT);
+		text("Control Command: up, down, left, right, clear, stop", 20, 20);
+        text(point, 50,50);
+        text(energy, 100,50);
+
+        fill(0,0,255,energyAlpha);
+        ellipse(100,100,50,50);
+        
+        difficutIncrease();
+        
+        //player
+        x += dx;
+        y += dy;
+		if(x<0) x = width;
+		if(y<0) y = height;
+		if(x>width) x = 0;
+		if(y>height) y = 0;
+        
+        
+        fill(0,0,0);
+        ellipse(x, y, r , r);
+
+        //regular Fruit
+        fill(0,255,0);
+        ellipse(x1,y1,20,20);
+        
+        //Eat regular Fruit
+        if(x< x1+20 && x>x1-20)
+        {
+            if(y<y1+20 && y>y1-20)
+            {
+                x1 = random(50,450);
+                y1 = random(100,350);
+                point = point +1;
+                difficutIncrease();
+            }
+        }
+        
+        //energy fruit
+        fill(0,0,255);
+        ellipse(x2,y2,25,25);
+        
+        //eat energy fruit
+        if(x< x2+25 && x>x2-25)
+        {
+            if(y<y2+25 && y>y2-25)
+            {
+                if(energy == 0)
+                {
+                x2 = random(50,450);
+                y2 = random(100,350);
+                energy = energy +1;
+                if(energy >=1)
+                {
+                    energy = 1;
+                }
+                }
+            }
+        }
+        
+        if(energy >=1)
+        {
+            energyAlpha = 255;
+        }
+        else
+        {
+            energyAlpha = 0;
+        }
+        
+        if(r ==30)
+        {
+            if (frameCount % 60 == 0 && timer > 0) 
+            { // if the frameCount is divisible by 60, then a second has passed. it will stop at 0
+                timer --;
+            if(timer <= 0)
+            {
+                timer = 5;
+                r =10;
+            }}
+        }
+        
+        //harzard
+        fill(255,0,0);
+        
+        if(hActive1 == true)
+        {
+        ellipse(hx1,hy1,36,36);
+      
+            if(x< hx1+30 && x>hx1-30)
+            {
+                if(y<hy1+30 && y>hy1-30)
+                {
+                    GameOver();
+                }
+            }
+        }
+        
+        if(hActive2 == true)
+        {
+                             ellipse(hx2,hy2,36,36);
+            if(x< hx2+30 && x>hx2-30)
+                {
+                if(y<hy2+30 && y>hy2-30)
+                {
+                    GameOver();
+                }
+            }
+        }
+        
+        if(moving)
+        {
+            hx1 += dhx1;
+            hy1 += dhy1;
+            hx2 += dhx2;
+            hy2 += dhy2;
+            
+        if(hx1<0) hx1 = width;
+		if(hy1<0) hy1 = height;
+		if(hx1>width) hx1 = 0;
+		if(hy1>height) hy1 = 0;
+            
+                    if(hx2<0) hx2 = width;
+		if(hy2<0) hy2 = height;
+		if(hx2>width) hx2 = 0;
+		if(hy2>height) hy2 = 0;
+        }
+        
+	}
+
+	function parseResult()
+	{
+		// recognition system will often append words into phrases.
+		// so hack here is to only use the last word:
+		var mostrecentword = myRec.resultString.split(' ').pop();
+		if(mostrecentword.indexOf("left")!==-1) {  dx=-1;dy=0;}
+		else if(mostrecentword.indexOf("right")!==-1) { dx=1;dy=0; }
+		else if(mostrecentword.indexOf("up")!==-1) { dx=0;dy=-1; }
+		else if(mostrecentword.indexOf("down")!==-1) { dx=0;dy=1; }
+		else if(mostrecentword.indexOf("clear")!==-1) { background(255); }
+        else if(mostrecentword.indexOf("stop")!==-1) {  dx=0;dy=0; }
+        else if(mostrecentword.indexOf("large")!==-1)
+        {
+            if(energy==1)
+            {
+                r = 30; 
+                energy = energy -1;
+            }
+        }
+		console.log(mostrecentword);
+	}
+        
+        function GameOver()
+        {
+            dx = 0;
+            dy = 0;
+            background(255);
+            
+            textSize(20);
+            textAlign(LEFT);
+            text("Control Command: up, down, left, right, clear, stop", 20, 20);
+            text(point, 50,50);
+            text(energy, 50,50);
+            
+            fill(0,0,255);
+            ellipse(x2,y2,15,15);
+            
+            x1 = 350;
+            y1 = 200;
+            x2 = -1200;
+            y2 = 200;
+
+            hx1 = -1000;
+            hy1 = 350;
+            hx2 = -1000;
+            hy2 = 350;
+            
+                            hx1 = random(50,450);
+                hy1 = random(50,450);
+        
+                hx2 = random(50,450);
+                hy2 = random(50,450);
+            
+            hActive1=false;
+            hActive2=false;
+            moving=false;
+            
+            x = width/2;
+            y = height/2;
+            r = 10;
+            
+            fill(0,0,0);
+            ellipse(x, y, r , r);
+
+            //regular Fruit
+            fill(0,255,0);
+            ellipse(x1,y1,20,20);
+            
+            point = 0;
+            energy = 0;
+        }
+        
+        function difficutIncrease()
+        {
+            if(point == 1 && energy == 0 && r != 30)
+            {
+                x2 = 120;
+            }
+            if(point == 3)
+            {
+                hActive1 = true;
+            }
+            if(point == 4)
+            {
+                hActive2 = true;
+            }
+            if(point >=5 && moving == false)
+            {
+                //harzard moving
+                moving = true;
+                dhx1 = random(-2,2);
+                dhx2 = random(-2,2);
+                dhy1 = random(-2,2);
+                dhy2 = random(-2,2);
+            }
+        }       
+</script>
+</head>
+<body>
+</body>
+</html>
